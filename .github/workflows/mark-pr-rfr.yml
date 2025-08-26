@@ -1,0 +1,50 @@
+name: Mark PR Ready for Review
+
+on:
+  check_suite:
+    types: [completed]
+
+jobs:
+  mark-ready-for-review:
+    name: Mark PR Ready for Review
+    runs-on: ubuntu-latest
+    if: github.event.check_suite.conclusion == 'success' && github.event.check_suite.pull_requests[0]
+    
+    steps:
+      - name: Mark PR as Ready for Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pullRequests = context.payload.check_suite.pull_requests;
+            const checkSuiteHeadSha = context.payload.check_suite.head_sha;
+            
+            for (const pr of pullRequests) {
+              // Verify this check suite was run for this specific PR's head commit
+              if (pr.head.sha !== checkSuiteHeadSha) {
+                console.log(`Skipping PR #${pr.number} - check suite SHA mismatch`);
+                continue;
+              }
+              
+              // Check if PR is in draft state
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              
+              if (pullRequest.draft) {
+                console.log(`Marking PR #${pr.number} as in Ready For Review`);
+                
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  draft: false
+                });
+                
+                console.log(`PR #${pr.number} marked as in Ready For Review`);
+              } else {
+                console.log(`PR #${pr.number} is already in Ready For Review`);
+              }
+            }
