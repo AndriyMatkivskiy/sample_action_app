@@ -2,6 +2,8 @@ name: Mark PR Ready for Review
 
 on:
   pull_request:
+    branches:   
+      - main 
   check_suite:
     types: [completed]
 
