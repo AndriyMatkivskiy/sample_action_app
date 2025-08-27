@@ -1,7 +1,8 @@
 name: Mark PR Ready for Review
 
 on:
-  check_run
+  check_run:
+  status:
 
 jobs:
   mark-ready-for-review:
