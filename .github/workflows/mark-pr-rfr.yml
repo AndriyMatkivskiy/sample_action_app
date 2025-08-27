@@ -27,7 +27,7 @@ jobs:
           script: |
             console.log(`Triggered with payload: ${toJson(context.payload)}`);
       
-      - uses: GrantBirki/pr-status@vX.X.X # <-- replace with the latest version
+      - uses: GrantBirki/pr-status@v1.7.0
         id: pr-status
         with:
           evaluations: ci_passing # evaluate the given PR against the approved and ci_passing attributes
