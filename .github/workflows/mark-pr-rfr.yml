@@ -25,7 +25,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(`Triggered with payload: ${toJson(context.payload)}`);
+            console.log(`Triggered with payload: ${toJSON(context.payload)}`);
       
       - uses: GrantBirki/pr-status@v1.7.0
         id: pr-status
