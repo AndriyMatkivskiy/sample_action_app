@@ -7,10 +7,7 @@ permissions:
   pull-requests: write # write is required to add/removes labels from the given pull request (set to read if you don't want to use the labels feature of this action)
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, review_requested, review_request_removed, labeled, unlabeled]
-  pull_request_review:
-    types: [submitted, dismissed]
+  status:
 
 jobs:
   mark-ready-for-review:
@@ -25,25 +22,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(`Triggered with payload: ${context.payload}`);
+            console.log(`Triggered with payload: ${JSON.stringify(context.payload)}`);
       
-      - uses: GrantBirki/pr-status@v1.7.0
-        id: pr-status
-        with:
-          evaluations: ci_passing # evaluate the given PR against the approved and ci_passing attributes
-          exclude_checks: pr-status# exclude the pr-status check and my-other-check from CI evaluation
-          pass_labels: ready-for-deployment # if the PR passes evaluation, apply the ready-for-deployment label
-      
-      - name: outputs
-        run: |
-          echo "approved: ${{ steps.pr-status.outputs.approved }}"
-          echo "total approvals ${{ steps.pr-status.outputs.total_approvals }}"
-          echo "evaluation ${{ steps.pr-status.outputs.evaluation }}"
-          echo "merge state status ${{ steps.pr-status.outputs.merge_state_status }}"
-          echo "commit status ${{ steps.pr-status.outputs.commit_status }}"
-          echo "review decision ${{ steps.pr-status.outputs.review_decision }}"
-          echo "...."
-
       # - name: Mark PR as Ready for Review
       #   uses: actions/github-script@v7
       #   with:
