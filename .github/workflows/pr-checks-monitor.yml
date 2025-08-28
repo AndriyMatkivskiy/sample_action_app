@@ -1,4 +1,4 @@
-name: Mark PR Ready for Review
+name: PR Checks Monitor
 
 permissions:
   contents: write
@@ -13,10 +13,11 @@ on:
     types: [completed]
   check_run:
     types: [completed]
+  status:
 
 jobs:
-  mark-ready-for-review:
-    name: Mark PR Ready for Review
+  pr-checks-monitor:
+    name: PR Checks Monitor
     runs-on: ubuntu-latest
 
     # if: github.event.check_suite.conclusion == 'success' && github.event.check_suite.pull_requests[0]
