@@ -8,6 +8,10 @@ permissions:
 
 on:
   status:
+  check_suite:
+  check_run:
+  pull_request:
+    
 
 jobs:
   mark-ready-for-review:
