@@ -1,17 +1,18 @@
 name: Mark PR Ready for Review
 
 permissions:
-  contents: read
-  checks: read
-  statuses: read
+  contents: write
+  checks: write
+  statuses: write
   pull-requests: write # write is required to add/removes labels from the given pull request (set to read if you don't want to use the labels feature of this action)
 
 on:
-  status:
-  check_suite:
-  check_run:
   pull_request:
-    
+    types: [opened, synchronize, reopened, ready_for_review]
+  check_suite:
+    types: [completed]
+  check_run:
+    types: [completed]
 
 jobs:
   mark-ready-for-review:
