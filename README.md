@@ -5,8 +5,6 @@ A new Flutter project.
 ## Getting Started
 Some small update here.
 Another Update
-Anothers
-ho ho
 ho ho
 
 adad
