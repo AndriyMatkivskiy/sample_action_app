@@ -12,13 +12,12 @@ on:
   check_run:
     types: [completed]
   status:
+    types: [completed]
 
 jobs:
   pr-checks-monitor:
     name: PR Checks Monitor
     runs-on: ubuntu-latest
-   
-    # if: github.event.check_suite.conclusion == 'success' && github.event.check_suite.pull_requests[0]
 
     steps:
       - name: It works
