@@ -15,7 +15,7 @@ jobs:
   pr-checks-monitor:
     name: PR Checks Monitor
     runs-on: ubuntu-latest
-    if: ${{ github.event.issue.pull_request }}
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
 
     steps:
       - name: It works
