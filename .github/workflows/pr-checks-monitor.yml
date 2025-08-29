@@ -7,12 +7,16 @@ permissions:
   pull-requests: write # write is required to add/removes labels from the given pull request (set to read if you don't want to use the labels feature of this action)
 
 on:
+  workflow_dispatch: 
   check_suite:
     types: [completed]
   check_run:
     types: [completed]
   status:
     types: [completed]
+  workflow_run:
+      workflows: ["Lint check", "Format check", "Unit Tests"]
+      types: [completed]
 
 jobs:
   pr-checks-monitor:
