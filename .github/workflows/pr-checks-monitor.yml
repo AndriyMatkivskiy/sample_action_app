@@ -1,10 +1,10 @@
 name: PR Checks Monitor
 
 permissions:
-  contents: write
-  checks: write
-  statuses: write
-  pull-requests: write # write is required to add/removes labels from the given pull request (set to read if you don't want to use the labels feature of this action)
+  contents: read
+  checks: read
+  pull-requests: write
+  statuses: read
 
 on:
   workflow_run:
@@ -122,18 +122,34 @@ jobs:
             console.log(`🚀 Step 6: All checks passed and PR is in draft - marking as ready for review...`);
             
             try {
-              await github.rest.pulls.update({
+              const updateResult = await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pr.number,
                 draft: false
               });
               
-              console.log(`🎉 SUCCESS: PR #${pr.number} has been marked as ready for review!`);
-              console.log(`🔗 PR URL: ${pr.html_url}`);
+              console.log(`✅ Update API call successful. Response status: ${updateResult.status}`);
+              
+              // Verify the update worked
+              const { data: updatedPr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              
+              console.log(`🔍 Verification: PR #${pr.number} draft status is now: ${updatedPr.draft}`);
+              
+              if (updatedPr.draft === false) {
+                console.log(`🎉 SUCCESS: PR #${pr.number} has been marked as ready for review!`);
+                console.log(`🔗 PR URL: ${pr.html_url}`);
+              } else {
+                console.log(`⚠️  WARNING: API call succeeded but PR is still in draft state`);
+              }
               
             } catch (error) {
               console.log(`❌ ERROR: Failed to update PR #${pr.number}:`, error.message);
+              console.log(`🔍 Error details:`, JSON.stringify(error, null, 2));
               throw error;
             }
 
