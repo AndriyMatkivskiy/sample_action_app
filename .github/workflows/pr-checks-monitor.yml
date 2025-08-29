@@ -15,7 +15,8 @@ jobs:
   pr-checks-monitor:
     name: PR Checks Monitor
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    # Debug: always run but log the event type
+    # if: ${{ github.event.workflow_run.event == 'pull_request' }}
 
     steps:
       - name: It works
@@ -23,7 +24,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            console.log(`Triggered with payload: ${JSON.stringify(context.payload)}`);
+            console.log(`Event type: ${context.payload.workflow_run.event}`);
+            console.log(`Head branch: ${context.payload.workflow_run.head_branch}`);
+            console.log(`Conclusion: ${context.payload.workflow_run.conclusion}`);
 
       # - name: Mark PR as Ready for Review
       #   uses: actions/github-script@v7
