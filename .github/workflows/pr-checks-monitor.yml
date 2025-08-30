@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Print'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github.event.payload) }}
         run: |
-          console.log("payload: ${{ JSON.stringify(github.event.payload) }}")
+          echo "payload: ${{ GITHUB_CONTEXT }}"
           
