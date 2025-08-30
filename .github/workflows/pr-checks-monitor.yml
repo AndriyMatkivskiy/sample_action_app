@@ -27,8 +27,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            gh auth status
-
             const workflowRun = context.payload.workflow_run;
             console.log(`🔄 Starting PR checks monitor...`);
             console.log(`📋 Triggered by: ${workflowRun.name}`);
@@ -134,16 +132,7 @@ jobs:
               const { promisify } = require('util');
               const execAsync = promisify(exec);
               
-              const command = `gh pr ready ${pr.number}`;
-              console.log(`🚀 Executing command: ${command}`);
-              
-              const { stdout, stderr } = await execAsync(command, {
-                env: {
-                  ...process.env,
-                  GH_TOKEN: process.env.GH_TOKEN,
-                  GH_REPO: `${context.repo.owner}/${context.repo.repo}`
-                }
-              });
+              gh pr ready pr.number
               
               console.log(`✅ gh CLI command successful`);
               if (stdout) console.log(`📝 stdout:`, stdout);
