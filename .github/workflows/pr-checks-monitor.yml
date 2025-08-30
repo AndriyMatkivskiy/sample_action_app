@@ -1,7 +1,7 @@
 name: PR Checks Monitor
 
 permissions:
-  contents: read
+  contents: write
   checks: read
   pull-requests: write
   issues: write
@@ -13,7 +13,7 @@ on:
     types: [completed]
 
 env:
-  GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   comment:
