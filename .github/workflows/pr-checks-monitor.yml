@@ -122,71 +122,55 @@ jobs:
             console.log(`🚀 Step 6: All checks passed and PR is in draft - marking as ready for review...`);
             
             try {
-              const updateResult = await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                draft: false
+              console.log(`🔍 Using GraphQL API to update PR draft status...`);
+              console.log(`📝 PR node ID: ${pr.node_id}`);
+              
+              const mutation = `
+                mutation MarkPullRequestReadyForReview($pullRequestId: ID!) {
+                  markPullRequestReadyForReview(input: {pullRequestId: $pullRequestId}) {
+                    pullRequest {
+                      id
+                      number
+                      isDraft
+                      url
+                    }
+                  }
+                }
+              `;
+              
+              const result = await github.graphql(mutation, {
+                pullRequestId: pr.node_id
               });
               
-              console.log(`✅ Update API call successful. Response status: ${updateResult.status}`);
+              console.log(`✅ GraphQL mutation successful`);
+              console.log(`🔍 Result:`, JSON.stringify(result, null, 2));
               
-              // Verify the update worked
-              const { data: updatedPr } = await github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number
-              });
+              const updatedPr = result.markPullRequestReadyForReview.pullRequest;
+              console.log(`🔍 Updated PR #${updatedPr.number} - isDraft: ${updatedPr.isDraft}`);
               
-              console.log(`🔍 Verification: PR #${pr.number} draft status is now: ${updatedPr.draft}`);
-              
-              if (updatedPr.draft === false) {
+              if (!updatedPr.isDraft) {
                 console.log(`🎉 SUCCESS: PR #${pr.number} has been marked as ready for review!`);
-                console.log(`🔗 PR URL: ${pr.html_url}`);
+                console.log(`🔗 PR URL: ${updatedPr.url}`);
               } else {
-                console.log(`⚠️  WARNING: API call succeeded but PR is still in draft state`);
+                console.log(`⚠️  WARNING: GraphQL mutation succeeded but PR is still in draft state`);
               }
               
             } catch (error) {
-              console.log(`❌ ERROR: Failed to update PR #${pr.number}:`, error.message);
+              console.log(`❌ ERROR: Failed to update PR #${pr.number} via GraphQL:`, error.message);
               console.log(`🔍 Error details:`, JSON.stringify(error, null, 2));
-              throw error;
+              
+              // Fallback to REST API
+              console.log(`🔄 Trying REST API as fallback...`);
+              try {
+                const restResult = await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  draft: false
+                });
+                console.log(`✅ REST API fallback successful. Status: ${restResult.status}`);
+              } catch (restError) {
+                console.log(`❌ REST API fallback also failed:`, restError.message);
+                throw restError;
+              }
             }
-
-      # - name: Mark PR as Ready for Review
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const pullRequests = context.payload.check_suite.pull_requests;
-      #       const checkSuiteHeadSha = context.payload.check_suite.head_sha;
-
-      #       for (const pr of pullRequests) {
-      #         // Verify this check suite was run for this specific PR's head commit
-      #         if (pr.head.sha !== checkSuiteHeadSha) {
-      #           console.log(`Skipping PR #${pr.number} - check suite SHA mismatch`);
-      #           continue;
-      #         }
-
-      #         // Check if PR is in draft state
-      #         const { data: pullRequest } = await github.rest.pulls.get({
-      #           owner: context.repo.owner,
-      #           repo: context.repo.repo,
-      #           pull_number: pr.number
-      #         });
-
-      #         if (pullRequest.draft) {
-      #           console.log(`Marking PR #${pr.number} as in Ready For Review`);
-
-      #           await github.rest.pulls.update({
-      #             owner: context.repo.owner,
-      #             repo: context.repo.repo,
-      #             pull_number: pr.number,
-      #             draft: false
-      #           });
-
-      #           console.log(`PR #${pr.number} marked as in Ready For Review`);
-      #         } else {
-      #           console.log(`PR #${pr.number} is already in Ready For Review`);
-      #         }
-      #       }
