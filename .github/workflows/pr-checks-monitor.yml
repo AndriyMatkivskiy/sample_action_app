@@ -17,13 +17,9 @@ env:
 
 jobs:
   comment:
-    environment: main
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout repository'
-        uses: actions/checkout@v3
-    
-      - name: 'Comment on issue'
+      - name: 'Print'
         run: |
-          gh pr ready 12
+          console.log("payload: ${{ JSON.stringify(github.event.payload) }}")
           
