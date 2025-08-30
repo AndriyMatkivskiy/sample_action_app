@@ -15,11 +15,14 @@ jobs:
   pr-checks-monitor:
     name: PR Checks Monitor
     runs-on: ubuntu-latest
+   
     if: ${{ github.event.workflow_run.event == 'pull_request' }}
 
     steps:
       - name: Process PR checks and update status
         uses: actions/github-script@v7
+        env:
+          GH_TOKEN: ${{ github.token }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
