@@ -122,55 +122,45 @@ jobs:
             console.log(`🚀 Step 6: All checks passed and PR is in draft - marking as ready for review...`);
             
             try {
-              console.log(`🔍 Using GraphQL API to update PR draft status...`);
-              console.log(`📝 PR node ID: ${pr.node_id}`);
+              console.log(`🔍 Using gh CLI to update PR draft status...`);
               
-              const mutation = `
-                mutation MarkPullRequestReadyForReview($pullRequestId: ID!) {
-                  markPullRequestReadyForReview(input: {pullRequestId: $pullRequestId}) {
-                    pullRequest {
-                      id
-                      number
-                      isDraft
-                      url
-                    }
-                  }
+              const { exec } = require('child_process');
+              const { promisify } = require('util');
+              const execAsync = promisify(exec);
+              
+              const command = `gh pr ready ${pr.number}`;
+              console.log(`🚀 Executing command: ${command}`);
+              
+              const { stdout, stderr } = await execAsync(command, {
+                env: {
+                  ...process.env,
+                  GH_TOKEN: process.env.GITHUB_TOKEN,
+                  GH_REPO: `${context.repo.owner}/${context.repo.repo}`
                 }
-              `;
-              
-              const result = await github.graphql(mutation, {
-                pullRequestId: pr.node_id
               });
               
-              console.log(`✅ GraphQL mutation successful`);
-              console.log(`🔍 Result:`, JSON.stringify(result, null, 2));
+              console.log(`✅ gh CLI command successful`);
+              if (stdout) console.log(`📝 stdout:`, stdout);
+              if (stderr) console.log(`📝 stderr:`, stderr);
               
-              const updatedPr = result.markPullRequestReadyForReview.pullRequest;
-              console.log(`🔍 Updated PR #${updatedPr.number} - isDraft: ${updatedPr.isDraft}`);
+              // Verify the update worked
+              const { data: updatedPr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
               
-              if (!updatedPr.isDraft) {
+              console.log(`🔍 Verification: PR #${pr.number} draft status is now: ${updatedPr.draft}`);
+              
+              if (updatedPr.draft === false) {
                 console.log(`🎉 SUCCESS: PR #${pr.number} has been marked as ready for review!`);
-                console.log(`🔗 PR URL: ${updatedPr.url}`);
+                console.log(`🔗 PR URL: ${pr.html_url}`);
               } else {
-                console.log(`⚠️  WARNING: GraphQL mutation succeeded but PR is still in draft state`);
+                console.log(`⚠️  WARNING: Command succeeded but PR is still in draft state`);
               }
               
             } catch (error) {
-              console.log(`❌ ERROR: Failed to update PR #${pr.number} via GraphQL:`, error.message);
+              console.log(`❌ ERROR: Failed to update PR #${pr.number} via gh CLI:`, error.message);
               console.log(`🔍 Error details:`, JSON.stringify(error, null, 2));
-              
-              // Fallback to REST API
-              console.log(`🔄 Trying REST API as fallback...`);
-              try {
-                const restResult = await github.rest.pulls.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                  draft: false
-                });
-                console.log(`✅ REST API fallback successful. Status: ${restResult.status}`);
-              } catch (restError) {
-                console.log(`❌ REST API fallback also failed:`, restError.message);
-                throw restError;
-              }
+              throw error;
             }
