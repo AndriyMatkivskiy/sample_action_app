@@ -27,6 +27,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            gh auth status
+
             const workflowRun = context.payload.workflow_run;
             console.log(`🔄 Starting PR checks monitor...`);
             console.log(`📋 Triggered by: ${workflowRun.name}`);
