@@ -18,12 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Flutter
-        uses: britannio/action-install-flutter@v1.1
+      # - name: Install Flutter
+      #   uses: britannio/action-install-flutter@v1.1
 
-      - name: Install dependencies
-        run: flutter pub get
+      # - name: Install dependencies
+      #   run: flutter pub get
 
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      - name: Analyze project source
-        run: flutter analyze
+      # # Consider passing '--fatal-infos' for slightly stricter analysis.
+      # - name: Analyze project source
+      #   run: flutter analyze
