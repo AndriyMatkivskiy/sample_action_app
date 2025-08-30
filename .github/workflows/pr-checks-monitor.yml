@@ -12,18 +12,18 @@ on:
     workflows: ["Lint check", "Format check", "Unit Tests"]
     types: [completed]
 
+env:
+  GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+
 jobs:
   comment:
-    environment: MAIN
+    environment: main
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
         uses: actions/checkout@v3
     
       - name: 'Comment on issue'
-        with:
-          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
-          # GH_TOKEN: ${{ github.token }}
         run: |
           gh pr ready 12
           
