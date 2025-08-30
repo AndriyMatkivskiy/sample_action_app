@@ -19,7 +19,9 @@ jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
-      - name: 'Print'
-        run: |
-          echo "payload: ${{ toJson(github.event.payload) }}"
+      - name: It works
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log(`Triggered with payload: ${JSON.stringify(context.payload)}`);
           
