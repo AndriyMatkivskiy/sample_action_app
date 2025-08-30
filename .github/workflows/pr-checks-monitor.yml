@@ -14,6 +14,7 @@ on:
 
 jobs:
   comment:
+    environment: MAIN
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
@@ -24,6 +25,5 @@ jobs:
           GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
           # GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Username: `$GH_TOKEN`" 
           gh pr ready 12
           
